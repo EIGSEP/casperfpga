@@ -1774,14 +1774,15 @@ class RFDC(object):
       return int(imr_mode)
 
 
-  def run_mts(self, tile_mask=15, target_latency=None):
+  def run_mts(self, converter_type, tile_mask=15, target_latency=-1):
     """
-    Execute multi-tile synchronization (MTS) to synchronize ADC tiles set by "tile_mask".
-    Optionally request to synch with latency specified by "target_latency".
+    Execute multi-tile synchronization (MTS) to synchronize ADC or DAC tiles set by "tile_mask".
+    Optionally request to a target latency specified by "target_latency".
 
-    :param mask: Bitmask for selecting which tiles to sync, defaults to all tiles 0x1111 = 15. LSB is ADC Tile 0.
+    :param converter_type: Represents the target converter type, "adc" or "dac"
+    :type converter_type: str
+    :param mask: Bitmask for selecting which tiles to sync, defaults to all tiles 0x1111 = 15. LSB is ADC/DAC Tile 0.
     :type mask: int
-
     :param target_latency: Requested target latency
     :type target_latency: int
 
@@ -1791,31 +1792,68 @@ class RFDC(object):
     :raises KatcpRequestFail: If KatcpTransport encounters an error
     """
 
-    if target_latency is not None:
-      print("WARN: 'target_latency' not yet implemented, this argument is ignored")
-
     t = self.parent.transport
-    self.mts_report = []
-    args = (tile_mask,)
+    args = ("adc" if converter_type == self.ADC_TILE  else "dac",tile_mask,target_latency)
     reply, informs = t.katcprequest(name='rfdc-run-mts', request_timeout=t._timeout, request_args=args)
-    for i in informs:
-      self.mts_report.append(i)
 
     return True
 
+  def get_mts_latency(self, ntile):
+    """
+    Get the adc calibration freeze status for enabled tile "ntile" and block index "nblk". If a tile/block
+    pair is disabled an empty dictionary is returned and nothing is done.
 
-  def get_mts_report(self):
+    :param ntile: Tile index of target adc tile to get mts latency, in the range (0-3)
+    :type ntile: int
+
+    :return: Dictionary with mts latency, empty dictionary if tile/block is disabled
+    :rtype: dict[str, int]
+
+    :raises KatcpRequestFail: If KatcpTransport encounters an error
+
+    Examples
+    ----------
+    # get the calibration freeze status for ADC 00
+    >>>> ntile=0
+    >>>> rfdc.get_mts_latency(ntile)
+    {'Latency': 160, 'DelayOffset': 2, 'DecFactor': 4}
+    """
+    t = self.parent.transport
+
+    args = (ntile,)
+    reply, informs = t.katcprequest(name='rfdc-mts-tile-latency', request_timeout=t._timeout, request_args=args)
+
+    mts_latency = {}
+    info = informs[0].arguments[0].decode().split(', ')
+    if len(info) == 1: # (disabled) response
+      return mts_latency
+
+    for stat in info:
+      k,v = stat.split(' ')
+      mts_latency[k] = v
+
+    return mts_latency
+
+
+  def mts_debug_info(self, converter_type):
     """
     Prints a detailed report of the most recent multi-tile synchronization run. Including information
     such as latency on each tile, delay maker, delay bit.
+
+    :param converter_type: Represents the target converter type, "adc" or "dac"
+    :type converter_type: str
 
     :return: `True` if completes successfuly, `False` otherwise
     :rtype: bool
 
     :raises KatcpRequestFail: If KatcpTransport encounters an error
     """
-    for m in self.mts_report:
-      print(m)
+    t = self.parent.transport
+    args = ("adc" if converter_type == self.ADC_TILE  else "dac",)
+    reply, informs = t.katcprequest(name='rfdc-mts-debug-info', request_timeout=t._timeout, request_args=args)
+
+    for i in informs:
+      print(i)
 
     return True
 
