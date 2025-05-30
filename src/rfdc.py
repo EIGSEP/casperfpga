@@ -770,7 +770,7 @@ class RFDC(object):
     >>>> rfdc.set_coarse_delay(0, 0, rfdc.ADC_TILE, 12, rfdc.EVNT_SRC_TILE)
     {'CoarseDelay': 12, 'EventSource': 2}
     # trigger update event to apply
-    rfdc.update_event(0, 0, rfdc.EVENT_COARSE_DELAY)
+    rfdc.update_event(0, 0, rfdc.ADC_TILE, rfdc.EVENT_COARSE_DLY)
     """
     t = self.parent.transport
 
@@ -1798,11 +1798,13 @@ class RFDC(object):
 
     return True
 
-  def get_mts_latency(self, ntile):
+  def get_mts_latency(self, converter_type, ntile):
     """
-    Get the adc calibration freeze status for enabled tile "ntile" and block index "nblk". If a tile/block
-    pair is disabled an empty dictionary is returned and nothing is done.
+    Get the adc or dac mts latency for enabled tile "ntile" and block index "nblk". If a tile/block pair is
+    disabled or, no mts information is available, an empty dictionary is returned and nothing is done.
 
+    :param converter_type: Represents the target converter type, "adc" or "dac"
+    :type converter_type: str
     :param ntile: Tile index of target adc tile to get mts latency, in the range (0-3)
     :type ntile: int
 
@@ -1813,14 +1815,14 @@ class RFDC(object):
 
     Examples
     ----------
-    # get the calibration freeze status for ADC 00
+    # get the mts latency for ADC 00
     >>>> ntile=0
-    >>>> rfdc.get_mts_latency(ntile)
+    >>>> rfdc.get_mts_latency(rfdc.ADC_TILE, ntile)
     {'Latency': 160, 'DelayOffset': 2, 'DecFactor': 4}
     """
     t = self.parent.transport
 
-    args = (ntile,)
+    args = ("adc" if converter_type == self.ADC_TILE  else "dac",ntile)
     reply, informs = t.katcprequest(name='rfdc-mts-tile-latency', request_timeout=t._timeout, request_args=args)
 
     mts_latency = {}
