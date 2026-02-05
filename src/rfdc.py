@@ -486,7 +486,8 @@ class RFDC(object):
 
   def shutdown(self, ntile, converter_type):
     """
-    Shutdown target tile. Typical use case is to apply a dynamic setting and then shutdown and startup tile.
+    Shutdown target tile. Typical use case is to apply a dynamic setting and then shutdown and startup tile. Sending -1 will startup all
+    enabled tiles
     """
     t = self.parent.transport
     args = (ntile, "adc" if converter_type == self.ADC_TILE  else "dac")
@@ -495,11 +496,53 @@ class RFDC(object):
 
   def startup(self, ntile, converter_type):
     """
-    Startup target tile. Typical use case is to apply a dynamic setting and then shutdown and startup tile.
+    Startup target tile. Typical use case is to apply a dynamic setting and then shutdown and startup tile. Sending -1 will startup all
+    enabled tiles
     """
     t = self.parent.transport
     args = (ntile, "adc" if converter_type == self.ADC_TILE  else "dac")
     reply, informs = t.katcprequest(name='rfdc-startup', request_timeout=t._timeout, request_args=args)
+
+  def reset(self, ntile, converter_type):
+    """
+    Reset target tile. This will power down, reset all custom register settings to programmed defaults, and start the tile back up. Sending
+    -1 will reset all enabled tiles
+    """
+    t = self.parent.transport
+    args = (ntile, "adc" if converter_type == self.ADC_TILE  else "dac")
+    reply, informs = t.katcprequest(name='rfdc-reset', request_timeout=t._timeout, request_args=args)
+
+  def sysref_en(self, en):
+    """
+    Toggle internal sysref gate. Sending 1 enables sysref, 0 disables it.
+    """
+    t = self.parent.transport
+    args = (en,)
+    reply, informs = t.katcprequest(name='rfdc-sysref-en', request_timeout=t._timeout, request_args=args)
+
+  def setup_fifo(self, ntile, converter_type, fifo_en):
+    """
+    Enable or disable RFDC's internal gearbox FIFO for target tile. Typical use case is for dynamic reprogramming of digital data path features.
+    Sending 1 enables the FIFO, 0 disables it.
+    """
+    t = self.parent.transport
+    args = (ntile, "adc" if converter_type == self.ADC_TILE else "dac", fifo_en,)
+    reply, informs = t.katcprequest(name='rfdc-setup-fifo', request_timeout=t._timeout, request_args=args)
+
+
+  def get_fifo_status(self, ntile, converter_type):
+    """
+    Get the current status of the target tile's FIFO. Returning "True" the FIFO is enabled, "False" the FIFO is disabled.
+    """
+    t = self.parent.transport
+    args = (ntile, "adc" if converter_type == self.ADC_TILE else "dac",)
+    reply, informs = t.katcprequest(name='rfdc-fifo-status', request_timeout=t._timeout, request_args=args)
+
+    info = informs[0].arguments[0].decode()
+    if info == "(disabled)":
+      return None
+    else:
+      return bool(int(info))
 
 
   def get_fabric_clk_freq(self, ntile, converter_type):
