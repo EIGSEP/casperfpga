@@ -43,7 +43,7 @@ setuptools.setup(
         'IPython',
         'future',
         'numpy',
-        'katcp==0.9.3',
+        'katcp>=0.9.3',
         'katversion',
         'odict',
         'setuptools',
