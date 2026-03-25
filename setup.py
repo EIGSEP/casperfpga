@@ -25,6 +25,17 @@ except Exception as exc:
 
 # extra_compile_args = sysconfig.get_config_var('CFLAGS').split()
 extra_compile_args = ['-O2', '-Wall']
+progska_extension = setuptools.Extension(
+    'casperfpga.progska',
+    # sources=['progska/_progska.c', 'progska/progska.c', 'progska/th.c',
+    #         'progska/netc.c', 'progska/netc.h'],
+    sources=['progska/_progska.c', 'progska/progska.c', 'progska/th.c',
+            'progska/netc.c'],
+    include_dirs=['progska'],
+    language='c',
+    # extra_compile_args=extra_compile_args,
+    # extra_link_args=['-static'],
+)
 
 data_files = ['tengbe_mmap.txt', 'tengbe_mmap_legacy.txt', 'fortygbe_mmap_legacy.txt']
 
@@ -56,13 +67,13 @@ setuptools.setup(
         'crcmod'
     ],
     extras_require = {'test': ['pytest', 'pytest-datadir']},
-    packages=['casperfpga', 'casperfpga.debug'],
-    package_dir={'casperfpga': 'src', 'casperfpga.debug': 'debug'},
+    packages=['casperfpga', 'casperfpga.debug', 'casperfpga.progska'],
+    package_dir={'casperfpga': 'src', 'casperfpga.debug': 'debug', 'casperfpga.progska': 'progska'},
     package_data={'casperfpga': data_files},
     scripts=glob.glob('scripts/*'),
     setup_requires=['katversion'],
     use_katversion=True,
-    ext_modules=[],
+    ext_modules=[progska_extension],
     # Required for PyPI
     keywords='casper ska meerkat fpga',
     classifiers=[
