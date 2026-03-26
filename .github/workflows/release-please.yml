@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [py38]
+    branches: [main]
 
 permissions:
   contents: write
