@@ -82,8 +82,9 @@ class SnapAdc(object):
         except:
             print(self.device_info)
             raise
-        # By default, the ref is 10MHz
-        self.ref = 10
+        # By default, the ref is 10MHz. Pass ref=None via kwargs to skip
+        # LMX synthesis and use an external sampling clock directly.
+        self.ref = kwargs.pop('ref', 10)
         # If the resolution is 8, we will use HMCAD1511;
         # if it's 12 or 14, we will use HMCAD1520.
         if self.resolution == 8:
@@ -116,10 +117,10 @@ class SnapAdc(object):
         self.curDelay = [[0]*len(self.laneList)]*len(self.adcList)
         #self.curDelay = np.zeros((len(self.adcList),len(self.laneList)))
 
-        #if ref is not None:
-        #    self.lmx = LMX2581(host,'lmx_ctrl', fosc=ref)
-        #else:
-        #    self.lmx = None
+        if self.ref is not None:
+            self.lmx = LMX2581(host,'lmx_ctrl', fosc=self.ref)
+        else:
+            self.lmx = None
 
         self.clksw = HMC922(host,'adc16_use_synth')
         self.ram = [WishBoneDevice(host,name) for name in self.ramList]
@@ -140,9 +141,6 @@ class SnapAdc(object):
         self.p2 = ((pats[1] & mask) << ofst) + (pats[2] & mask)
 
         # below is from hera_corr_f/blocks.py
-        # Attach our own wrapping of LMX
-        if(self.ref == None):
-            self.lmx = LMX2581(host, 'lmx_ctrl', fosc=self.ref)
         self.name            = 'SNAP_adc'
         self.clock_divide    = 1
         #self.resolution      = resolution
