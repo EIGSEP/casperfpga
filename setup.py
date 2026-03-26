@@ -59,6 +59,7 @@ setuptools.setup(
         'odict',
         'setuptools',
         'tornado',
+        'backports.ssl_match_hostname',
         'redis',
         # tftpy >0.8.0 enforces a server-side TID switch on the
         # write path. The SNAP TAPCP microblaze answers the whole
