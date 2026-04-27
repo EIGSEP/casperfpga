@@ -60,7 +60,14 @@ setuptools.setup(
         'setuptools',
         'tornado',
         'redis',
-        'tftpy',
+        # tftpy >0.8.0 enforces a server-side TID switch on the
+        # write path. The SNAP TAPCP microblaze answers the whole
+        # transaction from port 69 (it never switches TID), so newer
+        # tftpy times out waiting for an ACK from a TID that never
+        # appears, even though the SNAP did ack the DATA on port 69.
+        # Reads tolerate the same behavior fine on all versions.
+        # Confirmed working: 0.8.0. Confirmed broken: 0.8.7.
+        'tftpy<=0.8.0',
         'progressbar2',
         'requests',
         'circus',
