@@ -67,7 +67,7 @@ setuptools.setup(
         # appears, even though the SNAP did ack the DATA on port 69.
         # Reads tolerate the same behavior fine on all versions.
         # Confirmed working: 0.8.0. Confirmed broken: 0.8.7.
-        'tftpy<=0.8.0',
+        'tftpy==0.8.0',
         'progressbar2',
         'requests',
         'circus',
