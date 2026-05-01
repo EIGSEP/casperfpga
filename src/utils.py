@@ -56,7 +56,7 @@ def list_alveos(remote_host_ip):
         timeout=1
         try:
           board = katcp.BlockingClient(host=remote_host_ip, port=remote_port, timeout=timeout)
-          board.setDaemon(True)
+          board.daemon = True
           board.start()
           connected = board.wait_connected(timeout)
 
@@ -499,12 +499,12 @@ def threaded_fpga_operation(fpga_list, timeout, target_function, num_retries=5, 
         thread_list = []
         for fpga_ in int_fpga_list:
             thread = threading.Thread(target=jobfunc, args=(result_queue, fpga_))
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
             thread_list.append(thread)
         for thread_ in thread_list:
             thread_.join(timeout)
-            if thread_.isAlive():
+            if thread_.is_alive():
                 break
         returnval = {}
         hosts_missing = [fpga.host for fpga in int_fpga_list]

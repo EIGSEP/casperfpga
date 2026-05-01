@@ -146,7 +146,7 @@ class AlveoTransport(KatcpTransport):
     try:
       board = katcp.CallbackClient(host=host_ip, port=port,
       timeout=timeout, auto_reconnect=False)
-      board.setDaemon(True)
+      board.daemon = True
       board.start()
       connected = board.wait_connected(timeout)
 

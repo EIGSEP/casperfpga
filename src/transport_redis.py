@@ -212,7 +212,7 @@ class RedisTapcpDaemon(object):
             self._logger.debug("Initializing queue for %s" % host)
             self.hostq[host] = Queue()
             self.workers[host] = Thread(target=self._process_queue, args=(self.hostq[host],host))
-            self.workers[host].setDaemon(True)
+            self.workers[host].daemon = True
             self.workers[host].start()
         self._logger.debug("Queuing task ID %d for host %s" % (command["id"], host))
         self.hostq[host].put(message)

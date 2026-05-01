@@ -144,7 +144,7 @@ class KatcpTransport(Transport, katcp.CallbackClient):
             LOGGER.setLevel(logging.CRITICAL)
             tlogger.setLevel(logging.CRITICAL)
             board = katcp.CallbackClient(host=host_ip, port=7147, timeout=timeout, auto_reconnect=False)
-            board.setDaemon(True)
+            board.daemon = True
             board.start()
             connected = board.wait_connected(timeout)
             board.stop()
@@ -213,7 +213,7 @@ class KatcpTransport(Transport, katcp.CallbackClient):
             # daemonization APIs in upstream katcp package.
             try:
                 # new style
-                self.setDaemon(True)
+                self.daemon = True
                 self.start()
             except AttributeError:
                 # old style katcp-python
