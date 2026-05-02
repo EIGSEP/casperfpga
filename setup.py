@@ -76,7 +76,6 @@ setuptools.setup(
         'tftpy==0.8.0',
         'progressbar2<5',
         'requests<3',
-        'circus<1',
         'crcmod<2',
     ],
     extras_require = {'test': ['pytest', 'pytest-datadir']},
