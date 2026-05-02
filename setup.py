@@ -50,11 +50,13 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     # Specify version in-line here
-    # Upper bounds protect against future major-version breakage in
-    # transitive deps. Update bounds when a new major lands and is
-    # confirmed compatible. Unbounded entries are intentional:
-    # `setuptools` is managed by pip; `backports.ssl_match_hostname`
-    # is a backport that newer tornado will obsolete on its own.
+    # Upper bounds reduce the risk of future major-version breakage in
+    # direct dependencies declared below. They do not, by themselves,
+    # pin unrelated transitive dependencies; use a constraints or lock
+    # file as well if transitive pinning is required. Unbounded entries
+    # are intentional: `setuptools` is managed by pip;
+    # `backports.ssl_match_hostname` is a backport that newer tornado
+    # will obsolete on its own.
     install_requires=[
         'IPython<10',
         'future<2',
