@@ -50,17 +50,24 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     # Specify version in-line here
+    # Upper bounds reduce the risk of future major-version breakage in
+    # direct dependencies declared below. They do not, by themselves,
+    # pin unrelated transitive dependencies; use a constraints or lock
+    # file as well if transitive pinning is required. Unbounded entries
+    # are intentional: `setuptools` is managed by pip;
+    # `backports.ssl_match_hostname` is a backport that newer tornado
+    # will obsolete on its own.
     install_requires=[
-        'IPython',
-        'future',
-        'numpy',
-        'katcp>=0.9.3',
-        'katversion',
-        'odict',
+        'IPython<10',
+        'future<2',
+        'numpy<3',
+        'katcp>=0.9.3,<1',
+        'katversion<2',
+        'odict<2',
         'setuptools',
-        'tornado',
+        'tornado<7',
         'backports.ssl_match_hostname',
-        'redis',
+        'redis<7',
         # tftpy >0.8.0 enforces a server-side TID switch on the
         # write path. The SNAP TAPCP microblaze answers the whole
         # transaction from port 69 (it never switches TID), so newer
@@ -69,10 +76,9 @@ setuptools.setup(
         # Reads tolerate the same behavior fine on all versions.
         # Confirmed working: 0.8.0. Confirmed broken: 0.8.7.
         'tftpy==0.8.0',
-        'progressbar2',
-        'requests',
-        'circus',
-        'crcmod'
+        'progressbar2<5',
+        'requests<3',
+        'crcmod<2',
     ],
     extras_require = {'test': ['pytest', 'pytest-datadir']},
     packages=['casperfpga', 'casperfpga.debug', 'casperfpga.progska'],
