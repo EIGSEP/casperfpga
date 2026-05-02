@@ -1,3 +1,3 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "katversion"]
+requires = ["setuptools>=45", "wheel", "katversion<2"]
 build-backend = "setuptools.build_meta"
