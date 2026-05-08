@@ -54,20 +54,21 @@ setuptools.setup(
     # direct dependencies declared below. They do not, by themselves,
     # pin unrelated transitive dependencies; use a constraints or lock
     # file as well if transitive pinning is required. Unbounded entries
-    # are intentional: `setuptools` is managed by pip;
-    # `backports.ssl_match_hostname` is a backport that newer tornado
-    # will obsolete on its own.
+    # are intentional: `setuptools` is managed by pip.
     install_requires=[
         'IPython<10',
-        'future<2',
         'numpy<3',
         'katcp>=0.9.3,<1',
         'katversion<2',
         'odict<2',
         'setuptools',
         'tornado<7',
+        # Required transitively: katcp 0.9.3 pins tornado<5, and tornado
+        # 4.x's netutil.py imports backports.ssl_match_hostname directly.
+        # Python 3.12 removed ssl.match_hostname from stdlib, so dropping
+        # this breaks `import casperfpga` on py3.12+.
         'backports.ssl_match_hostname',
-        'redis<7',
+        'redis<8',
         # tftpy >0.8.0 enforces a server-side TID switch on the
         # write path. The SNAP TAPCP microblaze answers the whole
         # transaction from port 69 (it never switches TID), so newer
